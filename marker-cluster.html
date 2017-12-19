@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script charset="utf-8" src="http://map.qq.com/api/js?v=2.exp"></script>
+<style media="screen">
+  #thumbMap{
+    height: 800px;
+  }
+</style>
+</head>
+<body>
+<div id="thumbMap"></div>
+<script>
+// window.onload = function(){
+  var gogo = {//gogo所在地
+    compAddr:{
+      latitude: 22.52880054142482,//N纬度
+      longitude: 113.94388139247894,//E经度
+    },
+
+  };
+  var poiData = [];
+  var markerIndex = 0;
+  //初始化地图函数  自定义函数名init
+  function init() {
+    var markerIndex = 0;
+    var data = [
+      [39.959228, 116.367874],
+      [39.984486, 116.427612],
+      [39.988169, 116.279984],
+      [39.847558, 116.402893],
+      [39.941857, 116.383667],
+      [40.022882, 116.551208],
+      [39.819085, 116.581421],
+      [39.924482, 116.205826],
+      [39.757880, 116.162567],
+      [39.631606, 116.325989],
+      [39.797986, 116.415253],
+      [40.117990, 116.416626],
+      [40.271668, 116.638412],
+      [40.143190, 116.236038],
+      [39.928168, 116.515503],
+      [39.902362, 116.389160],
+      [39.935539, 116.377487]
+    ];
+    var Marker = qq.maps.Marker;
+    var LatLng = qq.maps.LatLng;
+    var Event = qq.maps.event;
+    var Point = qq.maps.Point;
+    var MVCArray = qq.maps.MVCArray;
+    var MarkerCluster = qq.maps.MarkerCluster;
+    var MarkerDecoration = qq.maps.MarkerDecoration;
+    var markers = new MVCArray();
+
+    //定义map变量 调用 qq.maps.Map() 构造函数   获取地图显示容器
+    var center = new qq.maps.LatLng(39.916527,116.397128);//北京
+    var map = new qq.maps.Map(document.getElementById('thumbMap'),{
+      disableDefaultUI: true,    //禁止所有控件
+      center: center,
+      zoom: 12
+    });
+    var anchor = new qq.maps.Point(10, 30);
+    var size = new qq.maps.Size(32, 30);
+    var origin = new qq.maps.Point(0, 0);
+    var icon = new qq.maps.MarkerImage(
+        size,
+        origin,
+        anchor
+    );
+    var jump = function(event) {
+      console.log(event.latLng)
+    };
+    qq.maps.event.addListener(map, 'click', jump);
+
+    function CustomZoomControl(controlDiv, map) {
+      controlDiv.style.padding = "5px";
+      controlDiv.style.backgroundColor = "#FFFFFF";
+      controlDiv.style.border = "2px solid #86ACF2";
+      controlDiv.index = 1;//设置在当前布局中的位置
+      controlDiv.innerHTML = "全屏";
+      qq.maps.event.addDomListener(controlDiv,'click',function(event){
+        this.innerHTML = $("#thumbMap").hasClass("fullScreen")?"全屏":"缩小";
+        $("#thumbMap").toggleClass("fullScreen");
+      });
+    }
+    //创建div元素
+    var customZoomDiv = document.createElement("div");
+    //获取控件接口设置控件
+    var customZoomControl = new CustomZoomControl(customZoomDiv, map);
+    //将控件添加到controls栈变量并将其设置在顶部位置
+    map.controls[qq.maps.ControlPosition.TOP_RIGHT].push(customZoomDiv);
+    var maker_add;
+    function addMapOrder(lat,lng,sta,index) {
+      if(lat&&lng){
+        var latlng = new qq.maps.LatLng(lat,lng);
+        var decoration = new MarkerDecoration(index, new Point(0, -5));
+        //设置中心
+        map.panTo(new qq.maps.LatLng(gogo.compAddr.latitude,gogo.compAddr.longitude));
+        if(sta === 'static'){
+          maker_add =  new qq.maps.Marker({
+            icon: icon,
+            map: map,
+            position:latlng,
+            animation: qq.maps.MarkerAnimation.DOWN,
+            decoration:decoration,
+          });
+          // marker.setPosition(latlng);
+        }else{
+          maker_add =  new qq.maps.Marker({
+            icon: icon,
+            map: map,
+            position:latlng,
+            animation: qq.maps.MarkerAnimation.BOUNCE,
+            decoration:decoration,
+          });
+        }
+        markers.push(maker_add);
+        markerClusterer.addMarker(maker_add);
+      }else{
+        // notice("新增一笔订单(无定位)!")
+      }
+    }
+    function createCluster() {
+      for (var i = 0; i < poiData.length; i++) {
+        var latLng = new LatLng(poiData[i][0], poiData[i][1]);
+        var decoration = new MarkerDecoration(i, new Point(0, -5));
+        var marker = new Marker({
+          'position':latLng,
+          map:map
+        });
+        markers.push(marker);
+      }
+      markerClusterer = new MarkerCluster({
+        map:map,
+        minimumClusterSize:2, //默认2
+        markers:markers,
+        zoomOnClick:true, //默认为true
+        gridSize:30, //默认60
+        averageCenter:true, //默认false
+        maxZoom:18, //默认18
+      });
+      Event.addListener(markerClusterer, 'clusterclick', function (evt) {
+      });
+    };
+  }
+  //调用初始化函数地图
+  init();
+// };
+</script>
+</body>
+</html>
